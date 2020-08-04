@@ -1,0 +1,84 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: global
+---
+apiVersion: types.kubefed.io/v1beta1
+kind: FederatedNamespace
+metadata:
+  name: global
+  namespace: global
+spec:
+  placement:
+    clusterSelector: {}
+---
+apiVersion: types.kubefed.io/v1beta1
+kind: FederatedDeployment
+metadata:
+  name: threejstext
+  namespace: global
+  labels:
+    app: threejstext
+spec:
+  placement:
+    clusterSelector: {}
+  template:
+    metadata:
+      labels:
+        app: threejstext
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: threejstext
+      template:
+        metadata:
+          labels:
+            app: threejstext
+        spec:
+          containers:
+          -  image: arctiqgreg/threejstext
+             name: threejstext
+             ports:
+             - containerPort: 80
+             env:
+             - name: MESSAGE
+               value: "Hello Federation"
+             - name: COLOR
+               value: "0x0000ff"
+  overrides:
+    - clusterName: cluster1
+      clusterOverrides:
+        - path: "/spec/template/spec/containers/0/env"
+          op: "replace"
+          value:
+             - name: MESSAGE
+               value: "Random message from Cluster 1"
+             - name: COLOR
+               value: "0xff0000"
+    - clusterName: cluster2
+      clusterOverrides:
+        - path: "/spec/template/spec/containers/0/env"
+          op: "replace"
+          value:
+             - name: MESSAGE
+               value: "Random message from Cluster 2"
+             - name: COLOR
+               value: "0xff0000"                
+---
+apiVersion: types.kubefed.io/v1beta1
+kind: FederatedService
+metadata:
+  name: threejstext
+  namespace: global
+spec:
+  placement:
+    clusterSelector: {}
+  template:
+    spec:
+      ports:
+      - port: 80
+      selector:
+        app: threejstext
+      type: LoadBalancer
