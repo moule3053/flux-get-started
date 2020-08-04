@@ -78,7 +78,7 @@ spec:
   template:
     spec:
       ports:
-      - port: 80
+      - port: 8080
       selector:
         app: threejstext
       type: NodePort
@@ -97,7 +97,7 @@ spec:
           paths:
           - backend:
               serviceName: threejstext
-              servicePort: 80
+              servicePort: 8080
   placement:
     clusterSelector: {}
 --- 
