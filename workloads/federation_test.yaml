@@ -81,4 +81,23 @@ spec:
       - port: 80
       selector:
         app: threejstext
-      type: LoadBalancer
+      type: NodePort
+---
+apiVersion: types.kubefed.io/v1beta1
+kind: FederatedIngress
+metadata:
+  name: threejstext-ingress
+  namespace: global
+spec:
+  template:
+    spec:
+      rules:
+      - host: ingress.federation.xyz
+        http:
+          paths:
+          - backend:
+              serviceName: threejstext
+              servicePort: 80
+  placement:
+    clusterSelector: {}
+--- 
